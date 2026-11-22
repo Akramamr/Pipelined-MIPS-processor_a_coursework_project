@@ -15,7 +15,7 @@ module writeback(
     reg [4:0] WriteRegW_r;
     reg [31:0] ALUOutW_r, ReadDataW_r;
 
-    always @(posedge clk or negedge rst) begin
+    always @(posedge clk or posedge rst) begin
         if (rst == 1'b0) begin
             RegWriteW_r <= 1'b0;
             MemtoRegW_r <= 1'b0;

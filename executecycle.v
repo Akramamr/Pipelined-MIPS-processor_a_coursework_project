@@ -58,8 +58,8 @@ module execute(
         .overflow()
     );
 
-    always @(posedge clk or negedge rst) begin
-        if (rst == 1'b0) begin
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
             RegWriteM <= 1'b0;
             MemWriteM <= 1'b0;
             MemtoRegM <= 1'b0;

@@ -1,0 +1,11 @@
+ALU.v
+imem.v
+reg_file.sv
+Control_Unit.v
+data_mem.v
+mux2x1.v
+shift_L.v
+adder.v
+sign_exd.sv
+top_single_cycle.v
+single_cycle_tb.v

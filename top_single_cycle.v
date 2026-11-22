@@ -22,7 +22,8 @@ module top_single_cycle #(
 //=============== OUTPUTS ===============//
     output wire [DATA_WIDTH-1:0] pc_out,
     output wire [DATA_WIDTH-1:0] alu_result_out,
-    output wire [DATA_WIDTH-1:0] write_data_out
+    output wire [DATA_WIDTH-1:0] write_data_out,
+    output wire                  memwrite_out
 );
 //=============== SIGNALS ===============//
     // initatial //
@@ -228,6 +229,7 @@ module top_single_cycle #(
     assign pc_out         = pcf;
     assign alu_result_out = alu_result;
     assign write_data_out = write_data;
+    assign memwrite_out   = memwrite;
 
 
 endmodule

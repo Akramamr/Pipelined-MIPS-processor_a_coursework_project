@@ -139,7 +139,7 @@ comparetor c1 (
     .EqualD(EqualD)
 );
 
-assign pcsrcd = EqualD || BranchD ;
+assign pcsrcd = EqualD && BranchD ;
 
 
 assign shfitedSignImmD = SignImmD << 2 ;

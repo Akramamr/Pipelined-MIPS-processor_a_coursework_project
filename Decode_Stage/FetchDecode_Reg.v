@@ -1,6 +1,7 @@
  
 module FDREG (
     input clk,
+    input rst,
     input clr,
     input en,
 
@@ -11,9 +12,14 @@ module FDREG (
     output reg [31:0] PCPlus4D
 );
 
-always @(posedge clk )
+always @(posedge clk or negedge rst )
 begin
-  if (clr)
+    if(!rst)
+     begin
+        InstrD <= 32'b0;
+        PCPlus4D <= 32'b0;
+     end
+    else if (clr)
      begin
         InstrD <= 32'b0;
         PCPlus4D <= 32'b0;

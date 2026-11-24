@@ -66,7 +66,8 @@ assign en = !StallD;
 // 1. The fitch decode flipflop
 fdreg fd (
     .clk(clk),
-    .clr(PCBranchD),
+    .rst(rst),
+    .clr(pcsrcd),
     .en(en),
     .InstrF(Instr),
     .PCPlus4F(PCPlus4),
@@ -139,7 +140,7 @@ comparetor c1 (
     .EqualD(EqualD)
 );
 
-assign pcsrcd = EqualD && BranchD ;
+assign pcsrcd = EqualD || BranchD ;
 
 
 assign shfitedSignImmD = SignImmD << 2 ;

@@ -1,4 +1,4 @@
-module EXMEM (
+module Execute_mem_Reg (
     input wire clk,
     input wire rst,
 

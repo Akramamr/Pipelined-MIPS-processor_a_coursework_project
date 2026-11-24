@@ -1,5 +1,5 @@
 
-module dmem #(parameter size = 32 , mem_depth = 64)(
+module data_mem #(parameter size = 32 , mem_depth = 64)(
 
     input clk , we ,
     input [size-1:0] a , wd,

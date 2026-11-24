@@ -1,12 +1,14 @@
 
-module writeback(
+module writeback_stage(
     input  wire        clk,
     input  wire        rst,
+    
     input  wire        RegWriteM,
     input  wire        MemtoRegM,
     input  wire [4:0]  WriteRegM,
     input  wire [31:0] ALUOutM,
     input  wire [31:0] ReadDataM,
+    
     output reg        RegWriteW,
     output reg [4:0]  WriteRegW,
     output reg [31:0] ResultW

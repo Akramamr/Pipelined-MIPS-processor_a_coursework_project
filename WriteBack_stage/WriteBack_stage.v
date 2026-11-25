@@ -11,12 +11,17 @@ module writeback_stage(
     
     output reg        RegWriteW,
     output reg [4:0]  WriteRegW,
-    output reg [31:0] ResultW
+    output reg [31:0] ResultW,
+    output [31:0] ALUOutW_out, ReadDataW_out
+     
 );
 
     reg  MemtoRegW;
     // reg [4:0] WriteRegW;
     reg [31:0] ALUOutW, ReadDataW;
+
+    assign ALUOutW_out =ALUOutW;
+    assign ReadDataW_out =ReadDataW;
 
     always @(posedge clk or posedge rst) begin
        if (rst) begin

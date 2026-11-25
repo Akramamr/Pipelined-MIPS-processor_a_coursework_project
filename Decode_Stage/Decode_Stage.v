@@ -1,7 +1,7 @@
 module decode_stage (
     input clk,
     input rst,
-    input zero,
+    //input zero,
 
     // From IF/ID
     input [31:0] Instr,
@@ -26,7 +26,7 @@ module decode_stage (
     output [31:0] RD1D,
     output [31:0] RD2D,
     output [31:0] SignImmD,
-    output [31:0] PCPlus4_out,
+    //output [31:0] PCPlus4_out,
 
     // Register addresses
     output [4:0] RsD,
@@ -37,18 +37,18 @@ module decode_stage (
     output RegWriteD,
     output MemtoRegD,
     output MemWriteD,
-    output BranchD,
     output [2:0] ALUControlD,
     output ALUSrcD,
     output RegDstD,
-    output jumpd,
-    output pcsrcd,
+    output jumpD,
+    output PCSrcD,
 
     output [31:0] PCBranchD 
 
 );
 
 // Internal signals
+    wire BranchD;
 wire [31:0] InstrD;
 wire [31:0] PCPlus4D;
 
@@ -63,11 +63,19 @@ wire [31:0] shfitedSignImmD ;
 wire en ;
 assign en = !StallD;
 
+// 2. Extract register addresses
+assign RsD = InstrD[25:21];
+assign RtD = InstrD[20:16];
+assign RdD = InstrD[15:11];
+
+// 3. Pass PC + 4 to the next stage
+//assign PCPlus4_out = PCPlus4D;
 // 1. The fitch decode flipflop
+
 fdreg fd (
     .clk(clk),
     .rst(rst),
-    .clr(pcsrcd),
+    .clr(PCSrcD),
     .en(en),
     .InstrF(Instr),
     .PCPlus4F(PCPlus4),
@@ -75,13 +83,6 @@ fdreg fd (
     .PCPlus4D(PCPlus4D)
 );
 
-// 2. Extract register addresses
-assign RsD = InstrD[25:21];
-assign RtD = InstrD[20:16];
-assign RdD = InstrD[15:11];
-
-// 3. Pass PC + 4 to the next stage
-assign PCPlus4_out = PCPlus4D;
 
 // 4. Register File
 reg_file RF (
@@ -115,8 +116,8 @@ Control_unit CU (
     .alucontrol(ALUControlD),
     .alusrc(ALUSrcD),
     .regdst(RegDstD),
-    .jump(jumpd),
-    .pcsrc(pcsrcd)
+    .jump(jumpD)
+    //.pcsrc(PCSrcD)
 );
 
 
@@ -134,13 +135,13 @@ mux r2 (
     .y(RD2DOUT)
 );
 
-comparetor c1 (
+comparator c1 (
     .in1(RD1DOUT),
     .in0(RD2DOUT),
     .EqualD(EqualD)
 );
 
-assign pcsrcd = EqualD || BranchD ;
+assign PCSrcD = EqualD && BranchD ;
 
 
 assign shfitedSignImmD = SignImmD << 2 ;

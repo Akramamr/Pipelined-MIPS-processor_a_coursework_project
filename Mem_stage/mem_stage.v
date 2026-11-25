@@ -13,16 +13,18 @@ module mem_stage #(parameter WIDTH = 32)(
     output MemtoRegM,
     output [WIDTH-1:0] ReadDataM,
     output [WIDTH-1:0] AluOutMout,
-    output [$clog2(WIDTH)-1:0] WriteRegM
+    output [$clog2(WIDTH)-1:0] WriteRegM,
 
-
+    output [WIDTH-1:0] WriteDataM_out
+    
 
 );
     wire [WIDTH-1:0] AluOutM;
     wire MemWriteM;
     wire [WIDTH-1:0] WriteDataM;
 
-
+assign AluOutMout = AluOutM;
+assign WriteDataM_out =WriteDataM;
 
 data_mem dmem (.clk(clk),.we(MemWriteM),.a(AluOutM),.wd(WriteDataM));
 

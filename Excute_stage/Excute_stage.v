@@ -1,87 +1,56 @@
-module execute (
-    input wire clk,
-    input wire rst,
-
-    input wire RegWriteE,
-    input wire ALUSrcE,
-    input wire MemWriteE,
-    input wire MemtoRegE,
-    input wire [2:0] ALUControlE,
-
-    input wire [31:0] RD1E,
-    input wire [31:0] RD2E,
-    input wire [31:0] SignImmE,
 
 
-    input wire [4:0] RtE,
-    input wire [4:0] RdE,
-    input wire RegDstE,
+module Execute_stage (
+    input  wire        clk, rst, flushE,
 
-    input wire [31:0] ResultW,
-    input wire [1:0] ForwardAE,
-    input wire [1:0] ForwardBE,
+    // From Decode stage
+    input  wire [31:0] RD1D, RD2D, SignImmD,
+    input  wire [4:0]  RsD, RtD, RdD,
+    input  wire        RegWriteD, MemtoRegD, MemWriteD,
+    input  wire [2:0]  ALUControlD,
+    input  wire        ALUSrcD, RegDstD,
 
-  
-    output wire [4:0] WriteRegE,
-    output wire RegWriteM,
-    output wire MemWriteM,
-    output wire MemtoRegM,
-    output wire [4:0] WriteRegM,
+    // Forwarding sources
+    input  wire [31:0] ResultW, ALUOutM,
+    input  wire [1:0]  ForwardAE, ForwardBE,
 
-    output wire [31:0] WriteDataM,
-    output wire [31:0] ALUOutM
+    // E-stage outputs (hazard unit and EX/MEM register both use these)
+    output wire [4:0]  RsE, RtE, WriteRegE,
+    output wire        RegWriteE, MemtoRegE, MemWriteE,
+    output wire [31:0] ALUOutE, WriteDataE
 );
+    wire [31:0] RD1E, RD2E, SignImmE;
+    wire [4:0]  RdE;
+    wire [2:0]  ALUControlE;
+    wire        ALUSrcE, RegDstE;
 
-
-    wire [31:0] SrcAE;      
-    wire [31:0] WriteDataE;  
-    wire [31:0] SrcBE;       
-    wire [31:0] ALUOutE;    
-
-    assign WriteRegE = RegDstE ? RdE : RtE;
-
-    assign SrcAE = (ForwardAE == 2'b00) ? RD1E :
-                   (ForwardAE == 2'b01) ? ResultW :
-                   (ForwardAE == 2'b10) ? ALUOutM :
-                                          32'b0;
-
-
-    assign WriteDataE = (ForwardBE == 2'b00) ? RD2E :
-                        (ForwardBE == 2'b01) ? ResultW :
-                        (ForwardBE == 2'b10) ? ALUOutM :
-                                               32'b0;
-
-
-    assign SrcBE = ALUSrcE ? SignImmE : WriteDataE;
-
-    alu alu_unit (
-        .a          (SrcAE),
-        .b          (SrcBE),
-        .shamt      (SignImmE[10:6]),
-        .alucontrol ({1'b0, ALUControlE}),
-        .result     (ALUOutE),
-        .zero       (),
-        .sign       (),
-        .overflow   ()
+    decode_excute_Reg id_ex_reg (
+        .clk(clk), .rst(rst), .clr(FlushE),
+        .RD1D(RD1D), .RD2D(RD2D), .SignImmD(SignImmD),
+        .RsD(RsD), .RtD(RtD), .RdD(RdD),
+        .RegWriteD(RegWriteD), .MemtoRegD(MemtoRegD), .MemWriteD(MemWriteD),
+        .ALUControlD(ALUControlD), .ALUSrcD(ALUSrcD), .RegDstD(RegDstD),
+        .RD1E(RD1E), .RD2E(RD2E), .SignImmE(SignImmE),
+        .RsE(RsE), .RtE(RtE), .RdE(RdE),
+        .RegWriteE(RegWriteE), .MemtoRegE(MemtoRegE), .MemWriteE(MemWriteE),
+        .ALUControlE(ALUControlE), .ALUSrcE(ALUSrcE), .RegDstE(RegDstE)
     );
 
-    EXMEM exmem_reg (
-        .clk        (clk),
-        .rst        (rst),
-        .RegWriteE  (RegWriteE),
-        .MemWriteE  (MemWriteE),
-        .MemtoRegE  (MemtoRegE),
-        .WriteRegE  (WriteRegE),
+    // execute ex_stage (
+    //     .RegWriteE(RegWriteE), .ALUSrcE(ALUSrcE), .MemWriteE(MemWriteE),
+    //     .MemtoRegE(MemtoRegE), .ALUControlE(ALUControlE),
+    //     .RD1E(RD1E), .RD2E(RD2E), .SignImmE(SignImmE), .RtE(RtE), .RdE(RdE),
+    //     .RegDstE(RegDstE), .ResultW(ResultW), .ALUOutM(ALUOutM),
+    //     .ForwardAE(ForwardAE), .ForwardBE(ForwardBE),
+    //     .RegWriteE_out(), .MemWriteE_out(), .MemtoRegE_out(),   // pass-through, unused
+    //     .WriteRegE(WriteRegE), .WriteDataE(WriteDataE), .ALUOutE(ALUOutE)
+    // );
 
-        .WriteDataE (WriteDataE),
-        .ALUOutE    (ALUOutE),
-        .RegWriteM  (RegWriteM),
-        .MemWriteM  (MemWriteM),
-        .MemtoRegM  (MemtoRegM),
-        .WriteRegM  (WriteRegM),
-
-        .WriteDataM (WriteDataM),
-        .ALUOutM    (ALUOutM)
+    execute ex_stage (
+        .ALUSrcE(ALUSrcE), .RegDstE(RegDstE), .ALUControlE(ALUControlE),
+        .RD1E(RD1E), .RD2E(RD2E), .SignImmE(SignImmE), .RtE(RtE), .RdE(RdE),
+        .ResultW(ResultW), .ALUOutM(ALUOutM),
+        .ForwardAE(ForwardAE), .ForwardBE(ForwardBE),
+        .WriteRegE(WriteRegE), .WriteDataE(WriteDataE), .ALUOutE(ALUOutE)
     );
-
 endmodule

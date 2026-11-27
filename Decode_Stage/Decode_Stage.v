@@ -4,8 +4,8 @@ module decode_stage (
     //input zero,
 
     // From IF/ID
-    input [31:0] Instr,
-    input [31:0] PCPlus4,
+    input [31:0] InstrF,
+    input [31:0] PCPlus4F,
 
     // From Writeback stage
     input RegWriteW,
@@ -19,13 +19,14 @@ module decode_stage (
 
 
     // From ALU
-    input [31:0] ALUoutM,
+    input [31:0] ALUOutM,
 
 
     // Data outputs
     output [31:0] RD1D,
     output [31:0] RD2D,
     output [31:0] SignImmD,
+    output [31:0] PCJumpD,
     //output [31:0] PCPlus4_out,
 
     // Register addresses
@@ -40,15 +41,16 @@ module decode_stage (
     output [2:0] ALUControlD,
     output ALUSrcD,
     output RegDstD,
-    output jumpD,
+    output JumpD,
     output PCSrcD,
 
-    output [31:0] PCBranchD 
+    output [31:0] PCBranchD ,
+    output BranchD
 
 );
 
 // Internal signals
-    wire BranchD;
+    wire BranchD_d;
 wire [31:0] InstrD;
 wire [31:0] PCPlus4D;
 
@@ -68,17 +70,19 @@ assign RsD = InstrD[25:21];
 assign RtD = InstrD[20:16];
 assign RdD = InstrD[15:11];
 
+assign PCJumpD = {PCPlus4D[31:28], InstrD[25:0], 2'b00};
+assign BranchD =BranchD_d;
 // 3. Pass PC + 4 to the next stage
 //assign PCPlus4_out = PCPlus4D;
 // 1. The fitch decode flipflop
 
-fdreg fd (
+FetchDecode_Reg FetchDecode_R (
     .clk(clk),
     .rst(rst),
-    .clr(PCSrcD),
+    .clr(PCSrcD| JumpD),
     .en(en),
-    .InstrF(Instr),
-    .PCPlus4F(PCPlus4),
+    .InstrF(InstrF),
+    .PCPlus4F(PCPlus4F),
     .InstrD(InstrD),
     .PCPlus4D(PCPlus4D)
 );
@@ -98,50 +102,50 @@ reg_file RF (
 );
 
 // 5. Sign Extend
-sign_ext SE (
+sign_ext SEXT (
     .instruction(InstrD[15:0]),
     .ext_out(SignImmD)
 );
 
 // 6. Control Unit
-Control_unit CU (
+control_unit CU (
     .opcode(InstrD[31:26]),
     .funct(InstrD[5:0]),
-    .zero(zero),
+    // .zero(zero),
 
     .regwrite(RegWriteD),
     .memtoreg(MemtoRegD),
     .memwrite(MemWriteD),
-    .branch(BranchD),
+    .branchD(BranchD_d),
     .alucontrol(ALUControlD),
     .alusrc(ALUSrcD),
     .regdst(RegDstD),
-    .jump(jumpD)
+    .jump(JumpD)
     //.pcsrc(PCSrcD)
 );
 
 
-mux r1 (
-    .d0(RD1),
-    .d1(ALUoutM),
+mux_2x1 r1 (
+    .d0(RD1D),
+    .d1(ALUOutM),
     .s(ForwardAD),
     .y(RD1DOUT)
 );
 
-mux r2 (
-    .d0(RD2),
-    .d1(ALUoutM),
+mux_2x1 r2 (
+    .d0(RD2D),
+    .d1(ALUOutM),
     .s(ForwardBD),
     .y(RD2DOUT)
 );
 
-comparator c1 (
+comparator comp (
     .in1(RD1DOUT),
     .in0(RD2DOUT),
     .EqualD(EqualD)
 );
 
-assign PCSrcD = EqualD && BranchD ;
+assign PCSrcD = EqualD && BranchD_d ;
 
 
 assign shfitedSignImmD = SignImmD << 2 ;

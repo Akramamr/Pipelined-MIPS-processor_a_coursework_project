@@ -11,7 +11,7 @@ module writeback_stage(
     
     output reg        RegWriteW,
     output reg [4:0]  WriteRegW,
-    output reg [31:0] ResultW,
+    output [31:0] ResultW,
     output [31:0] ALUOutW_out, ReadDataW_out
      
 );
@@ -23,8 +23,8 @@ module writeback_stage(
     assign ALUOutW_out =ALUOutW;
     assign ReadDataW_out =ReadDataW;
 
-    always @(posedge clk or posedge rst) begin
-       if (rst) begin
+    always @(posedge clk or negedge rst) begin
+       if (!rst) begin
             RegWriteW <= 1'b0;
             MemtoRegW <= 1'b0;
             WriteRegW <= 5'h00;
@@ -40,7 +40,7 @@ module writeback_stage(
         end
     end
 
-    mux2 result_mux (
+    mux_2x1 result_mux (
             .d0(ALUOutW),
             .d1(ReadDataW),
             .s(MemtoRegW),

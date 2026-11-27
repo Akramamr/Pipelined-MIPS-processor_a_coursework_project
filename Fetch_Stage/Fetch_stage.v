@@ -1,4 +1,4 @@
-module fetch (
+module fetch_stage (
     input clk ,
     input rst ,
     input StallF,
@@ -7,7 +7,8 @@ module fetch (
     input [31:0] PCBranchD,
     input PCSrcD,
 
-    input Jump,
+    input JumpD,
+input [31:0] PCJumpD,
 
 
     output [31:0] InstrF,
@@ -17,11 +18,10 @@ module fetch (
 
 wire [31:0] PC;
 wire [31:0] PC1;
-wire [31:0] PCJump;
 reg [31:0] PCF;
 
 
-mux2 m1 (
+mux_2x1 m1_br (
     .d0(PCPlus4F),
     .d1(PCBranchD),
     .s(PCSrcD),
@@ -29,10 +29,10 @@ mux2 m1 (
 );
 
 
-mux m2 (
+mux_2x1 m2_ju (
      .d0(PC1),
-    .d1(PCJump),
-    .s(Jump),
+    .d1(PCJumpD),
+    .s(JumpD),
     .y(PC)
 );
 
@@ -52,19 +52,10 @@ end
 
 assign PCPlus4F = PCF + 4 ;
 
-imem a (
+imem imem (
     .a(PCF),
     .rd(InstrF)
 );
-
-
-wire [27:0] Instr ;
-assign Instr = {InstrF[25:0],2'b00};
-
-
-assign PCJump = { PCPlus4F[31:28] , Instr};
-
-
 
 
 

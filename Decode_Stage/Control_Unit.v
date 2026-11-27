@@ -31,15 +31,15 @@ module control_unit#(
 
     input [op_w-1 : 0 ] opcode,
     input [func_w-1: 0] funct,
-    input               zero,
+    // input               zero,
 
     output regdst,
     output alusrc,
     output memtoreg,
     output regwrite,
     output memwrite,
-    output branch,
-    output pcsrc,
+    output branchD,
+    //output pcsrc,
     output jump,
     output [aluctl_w-1:0] alucontrol
 
@@ -48,10 +48,10 @@ module control_unit#(
     wire       [1:0]             ALU_op ;
     reg        [8:0]             controls;
     reg [aluctl_w-1 : 0 ]        alu_r;
-    assign pcsrc = branch & zero; //zero flag cntrl
+    //assign pcsrc = branchD & zero; //zero flag cntrl
     
 
-    assign {regwrite, regdst, alusrc, branch, memwrite, memtoreg, ALU_op, jump} = controls;
+    assign {regwrite, regdst, alusrc, branchD, memwrite, memtoreg, ALU_op, jump} = controls;
     assign alucontrol = alu_r;
 
     always @(*) begin

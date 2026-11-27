@@ -6,7 +6,6 @@ module Execute_mem_Reg (
     input wire MemWriteE,
     input wire MemtoRegE,
     input wire [4:0] WriteRegE,
-    //input wire [31:0] PCPlus4E,
     input wire [31:0] WriteDataE,
     input wire [31:0] ALUOutE,
 
@@ -26,7 +25,6 @@ module Execute_mem_Reg (
             MemWriteM <= 1'b0;
             MemtoRegM <= 1'b0;
             WriteRegM <= 5'b0;
-            //PCPlus4M  <= 32'b0;
             WriteDataM <= 32'b0;
             ALUOutM   <= 32'b0;
         end
@@ -36,7 +34,6 @@ module Execute_mem_Reg (
             MemWriteM <= MemWriteE;
             MemtoRegM <= MemtoRegE;
             WriteRegM <= WriteRegE;
-            //PCPlus4M  <= PCPlus4E;
             WriteDataM <= WriteDataE;
             ALUOutM   <= ALUOutE;
         end

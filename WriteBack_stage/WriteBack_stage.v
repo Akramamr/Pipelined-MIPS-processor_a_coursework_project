@@ -47,7 +47,4 @@ module writeback_stage(
             .y(ResultW)
             );
 
-    // assign RegWriteW = RegWriteW;
-    // assign WriteRegW = WriteRegW;
-
 endmodule

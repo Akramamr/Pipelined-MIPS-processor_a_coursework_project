@@ -1,5 +1,5 @@
  
-module FDREG (
+module FetchDecode_Reg (
     input clk,
     input rst,
     input clr,

@@ -1,13 +1,13 @@
-module hazard_unit(input [4:0] rsD,rtD,rtE,rsE,
-                   input [4:0] WriteRegM,WriteRegW,WriteRegE,
+module hazard_unit#(parameter WIDTH = 32)(
+                    input [$clog2(WIDTH)-1:0] rsD,rtD,rtE,rsE,
+                   input [$clog2(WIDTH)-1:0] WriteRegM,WriteRegW,WriteRegE,
                    input RegWriteM,RegWriteE,RegWriteW,
-                                //RegWriteE
                    input BranchD,MemtoRegM,MemtoRegE,
 
 
-                   output forwardAD,forwardBD,
-                   output reg [1:0] forwardAE,forwardBE,
-                   output stallF,stallD,flushE);
+                   output ForwardAD,ForwardBD,
+                   output reg [1:0] ForwardAE,ForwardBE,
+                   output StallF,StallD,FlushE);
 
 
 
@@ -19,23 +19,23 @@ wire lwstall,branchstall;
 always @(*) begin
     
     if ((rsE !=0 ) && (rsE == WriteRegM ) && RegWriteM)
-        forwardAE = 2'b10;
+        ForwardAE = 2'b10;
     else if (((rsE !=0 ) && (rsE == WriteRegW ) && RegWriteW)) begin
-        forwardAE = 2'b01;
+        ForwardAE = 2'b01;
         
     end
-    else forwardAE =2'b00;
+    else ForwardAE =2'b00;
 end
 
 always @(*) begin
     
     if ((rtE !=0 ) && (rtE == WriteRegM ) && RegWriteM)
-        forwardBE = 2'b10;
+        ForwardBE = 2'b10;
     else if (((rtE !=0 ) && (rtE == WriteRegW ) && RegWriteW)) begin
-        forwardBE = 2'b01;
+        ForwardBE = 2'b01;
         
     end
-    else forwardBE = 2'b00;
+    else ForwardBE = 2'b00;
 
 end
 
@@ -49,16 +49,16 @@ assign lwstall =(( rsD == rtE) || (rtD == rtE)) && MemtoRegE;
 
 //BRANCH HAZARD HANDLING
 
-assign forwardAD = (rsD != 0) && (rsD == WriteRegM) && RegWriteM;
-assign forwardBD = (rtD != 0) && (rtD == WriteRegM) && RegWriteM;
+assign ForwardAD = (rsD != 0) && (rsD == WriteRegM) && RegWriteM;
+assign ForwardBD = (rtD != 0) && (rtD == WriteRegM) && RegWriteM;
 
-assign branchstall = BranchD && RegWriteE && (WriteRegE == rsD || WriteRegE ==rtD ) || 
-              BranchD && MemtoRegM && (WriteRegM == rsD || WriteRegM == rtD );
+assign branchstall = BranchD && RegWriteE &&(WriteRegE != 0) && (WriteRegE == rsD || WriteRegE ==rtD ) || 
+              BranchD && MemtoRegM && (WriteRegM != 0) && (WriteRegM == rsD || WriteRegM == rtD );
 
 
-assign stallF = lwstall || branchstall;
-assign flushE = lwstall || branchstall;
-assign stallD = lwstall || branchstall;
+assign StallF = lwstall || branchstall;
+assign FlushE = lwstall || branchstall;
+assign StallD = lwstall || branchstall;
 
 
 

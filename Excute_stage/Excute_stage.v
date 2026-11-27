@@ -1,7 +1,7 @@
 
 
 module Execute_stage (
-    input  wire        clk, rst, flushE,
+    input  wire        clk, rst, FlushE,
 
     // From Decode stage
     input  wire [31:0] RD1D, RD2D, SignImmD,
@@ -36,17 +36,7 @@ module Execute_stage (
         .ALUControlE(ALUControlE), .ALUSrcE(ALUSrcE), .RegDstE(RegDstE)
     );
 
-    // execute ex_stage (
-    //     .RegWriteE(RegWriteE), .ALUSrcE(ALUSrcE), .MemWriteE(MemWriteE),
-    //     .MemtoRegE(MemtoRegE), .ALUControlE(ALUControlE),
-    //     .RD1E(RD1E), .RD2E(RD2E), .SignImmE(SignImmE), .RtE(RtE), .RdE(RdE),
-    //     .RegDstE(RegDstE), .ResultW(ResultW), .ALUOutM(ALUOutM),
-    //     .ForwardAE(ForwardAE), .ForwardBE(ForwardBE),
-    //     .RegWriteE_out(), .MemWriteE_out(), .MemtoRegE_out(),   // pass-through, unused
-    //     .WriteRegE(WriteRegE), .WriteDataE(WriteDataE), .ALUOutE(ALUOutE)
-    // );
-
-    execute ex_stage (
+    excute ex_stage (
         .ALUSrcE(ALUSrcE), .RegDstE(RegDstE), .ALUControlE(ALUControlE),
         .RD1E(RD1E), .RD2E(RD2E), .SignImmE(SignImmE), .RtE(RtE), .RdE(RdE),
         .ResultW(ResultW), .ALUOutM(ALUOutM),

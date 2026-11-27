@@ -28,11 +28,12 @@ module reg_file #(
     integer i;
 
 //=============== SEQ_LOGIC ===============//
-    always @(posedge clk or posedge rst) begin
-        if (rst) begin
+    always @(posedge clk or negedge rst) begin
+        if (!rst) begin
             for (i = 0; i < REG_COUNT; i = i+1) begin
                     registers[i] <= {DATA_WIDTH{1'b0}};
             end
+            // registers[0] <= {DATA_WIDTH{1'b0}};
         end
 
         else if(en_reg_wr) begin
@@ -42,7 +43,15 @@ module reg_file #(
     end
 
 //=============== COMB_LOGIC ===============//
-    assign rd_data1 = registers[rd_reg1];
-    assign rd_data2 = registers[rd_reg2];
+    // assign rd_data1 = registers[rd_reg1];
+    // assign rd_data2 = registers[rd_reg2];
+
+    assign rd_data1 = (rd_reg1 == {ADDR_WIDTH{1'b0}}) ? {DATA_WIDTH{1'b0}} :
+                      (en_reg_wr && (wr_reg == rd_reg1)) ? wr_data :
+                      registers[rd_reg1];
+
+    assign rd_data2 = (rd_reg2 == {ADDR_WIDTH{1'b0}}) ? {DATA_WIDTH{1'b0}} :
+                      (en_reg_wr && (wr_reg == rd_reg2)) ? wr_data :
+                      registers[rd_reg2];
     
 endmodule
